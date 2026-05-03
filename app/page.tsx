@@ -12,14 +12,14 @@ export default function ClearViewKitchens() {
       {/* Header */}
       <header className="flex items-center justify-between px-4 py-4 md:px-8 lg:px-16 border-b border-gray-100">
         <div className="flex items-center gap-2">
-          <div className="w-10 h-10 border-2 border-gray-800 flex items-center justify-center">
+          {/* <div className="w-10 h-10 border-2 border-gray-800 flex items-center justify-center">
             <div className="w-6 h-6 border border-gray-800" />
           </div>
           <div>
             <span className="font-bold text-lg tracking-wide text-gray-900">CLEARVIEW</span>
             <span className="block text-xs tracking-widest text-gray-600">KITCHENS</span>
-          </div>
-        </div>
+          </div> */}
+          <Image src="/logo.png" alt="logo" width={240} height={240} />        </div>
         <p className="hidden md:block text-sm text-gray-600">Custom Kitchen Cabinets in Toronto &amp; GTA</p>
         <a href="tel:905-767-6766" className="flex items-center gap-2 text-[rgb(171,127,69)] font-semibold">
           <Phone className="w-5 h-5" />
