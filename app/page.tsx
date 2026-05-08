@@ -3,36 +3,62 @@
 import { Phone, MapPin, Shield, Star, ChevronRight, Lock, Clock, Award, Users } from "lucide-react"
 import Image from "next/image"
 import { useState } from "react"
+import logo from '../public/logo.png'
 
 export default function ClearViewKitchens() {
   const [formData, setFormData] = useState({ name: "", phone: "", email: "" })
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error">("idle")
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsSubmitting(true)
+    setSubmitStatus("idle")
+
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      })
+
+      if (response.ok) {
+        setSubmitStatus("success")
+        setFormData({ name: "", phone: "", email: "" })
+      } else {
+        setSubmitStatus("error")
+      }
+    } catch {
+      setSubmitStatus("error")
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
 
   return (
-    <div className="min-h-screen bg-white font-sans">
+    <div className="min-h-screen bg-white font-sans bg-[#0b1829]">
       {/* Header */}
-      <header className="flex items-center justify-between px-4 py-4 md:px-8 lg:px-16 border-b border-gray-100">
-        <div className="flex items-center gap-2">
-          {/* <div className="w-10 h-10 border-2 border-gray-800 flex items-center justify-center">
-            <div className="w-6 h-6 border border-gray-800" />
-          </div>
-          <div>
-            <span className="font-bold text-lg tracking-wide text-gray-900">CLEARVIEW</span>
-            <span className="block text-xs tracking-widest text-gray-600">KITCHENS</span>
-          </div> */}
-          <Image src="/logo.png" alt="logo" width={240} height={240} />        </div>
-        <p className="hidden md:block text-sm text-gray-600">Custom Kitchen Cabinets in Toronto &amp; GTA</p>
+      <header className="flex items-center justify-between px-4 py-4 md:px-8 lg:px-16 border-b border-gray-100 bg-[#0b1829]">
+        <Image
+          src={logo}
+          alt="ClearView Kitchens & Homes"
+          width={240}
+          height={60}
+          className="h-14 w-auto"
+        />
+        <p className="hidden md:block text-sm text-gray-600" style={{color:'#fff'}}>Custom Kitchen Cabinets in Toronto &amp; GTA</p>
         <a href="tel:905-767-6766" className="flex items-center gap-2 text-[rgb(171,127,69)] font-semibold">
           <Phone className="w-5 h-5" />
-          <div className="text-right">
+          <div className="text-right" style={{color:'#fff'}}>
             <span className="block text-lg">905-767-6766</span>
-            <span className="block text-xs text-gray-500 font-normal">Call for Free Consultation</span>
+            <span className="block text-xs text-gray-500 font-normal" style={{color:'#fff'}}>Call for Free Consultation</span>
           </div>
         </a>
       </header>
 
       {/* Hero Section */}
-      <section className="relative">
-        <div className="absolute inset-0 z-0">
+      <section className="relative" style={{top:'-1px'}}>
+        <div className="absolute inset-0 z-0 bg-[#0b1829]" >
           <Image
             src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/eb9a6f24-2332-4f3a-9f3a-1cb05b41ef57-THCTcxozIZvohS56K4yjqj5PH5TN3P.png"
             alt="Modern kitchen with custom cabinets"
@@ -95,10 +121,10 @@ export default function ClearViewKitchens() {
             </div>
 
             {/* Right Form */}
-            <div className="bg-white p-6 md:p-8 shadow-xl max-w-md ml-auto">
-              <h2 className="text-2xl font-bold text-gray-900 mb-1">Get Your</h2>
+            <div className=" p-6 md:p-8 shadow-xl max-w-md ml-auto bg-[#0b1829]">
+              <h2 className="text-2xl font-bold text-gray-900 mb-1" style={{color:'#fff'}}>Get Your</h2>
               <p className="text-2xl text-[rgb(171,127,69)] italic mb-2">Free Consultation</p>
-              <p className="text-sm text-gray-600 mb-6">
+              <p className="text-sm text-gray-600 mb-6" style={{color:'#fff'}}>
                 Tell us about your project and we&apos;ll get back to you.
               </p>
               <form className="space-y-4">
@@ -130,7 +156,7 @@ export default function ClearViewKitchens() {
                   GET FREE CONSULTATION
                 </button>
               </form>
-              <p className="text-xs text-gray-500 mt-4 flex items-center justify-center gap-1">
+              <p className="text-xs text-gray-500 mt-4 flex items-center justify-center gap-1" style={{color:'#fff'}}>
                 <Lock className="w-3 h-3" />
                 Your information is 100% secure and will never be shared.
               </p>
@@ -140,8 +166,8 @@ export default function ClearViewKitchens() {
       </section>
 
       {/* Why Choose Us */}
-      <section className="py-16 px-4 md:px-8 lg:px-16">
-        <h2 className="text-2xl md:text-3xl font-bold text-center text-gray-900 mb-12">
+      <section className="py-16 px-4 md:px-8 lg:px-16 bg-[#0b1829]" >
+        <h2 className="text-2xl md:text-3xl font-bold text-center text-gray-900 mb-12" style={{color:'#fff'}}>
           Why Homeowners Choose ClearView Kitchens
         </h2>
         <div className="max-w-6xl mx-auto grid md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -169,16 +195,16 @@ export default function ClearViewKitchens() {
           ].map((item, i) => (
             <div key={i} className="text-center">
               <div className="flex justify-center mb-4">{item.icon}</div>
-              <h3 className="font-semibold text-[rgb(171,127,69)] mb-2">{item.title}</h3>
-              <p className="text-sm text-gray-600">{item.desc}</p>
+              <h3 className="font-semibold text-[#fff] mb-2">{item.title}</h3>
+              <p className="text-sm text-gray-600" style={{color:'#fff'}}>{item.desc}</p>
             </div>
           ))}
         </div>
       </section>
 
       {/* Recent Projects */}
-      <section className="py-12 px-4 md:px-8 lg:px-16 bg-gray-50">
-        <h2 className="text-2xl md:text-3xl font-bold text-center text-gray-900 mb-8">
+      <section className="py-12 px-4 md:px-8 lg:px-16  bg-[#0b1829]" >
+        <h2 className="text-2xl md:text-3xl font-bold text-center text-gray-900 mb-8" style={{color:'#fff'}}>
           Recent Custom Kitchen Projects
         </h2>
         <div className="max-w-6xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -192,15 +218,15 @@ export default function ClearViewKitchens() {
           ))}
         </div>
         <div className="text-center mt-8">
-          <button className="border-2 border-gray-800 px-8 py-3 font-semibold hover:bg-gray-800 hover:text-white transition-colors">
+          <button className="border-2 border-gray-800 px-8 py-3 font-semibold text-white transition-colors">
             VIEW MORE PROJECTS
           </button>
         </div>
       </section>
 
       {/* Process Section */}
-      <section className="py-16 px-4 md:px-8 lg:px-16 bg-stone-100">
-        <h2 className="text-2xl md:text-3xl font-bold text-center text-gray-900 mb-12">
+      <section className="py-16 px-4 md:px-8 lg:px-16 bg-[#0b1829]" >
+        <h2 className="text-2xl md:text-3xl font-bold text-center text-gray-900 mb-12" style={{color:'#fff'}}>
           Our Process is Simple
         </h2>
         <div className="max-w-5xl mx-auto">
@@ -216,13 +242,13 @@ export default function ClearViewKitchens() {
                   <span className="w-8 h-8 rounded-full bg-[rgb(171,127,69)] text-white flex items-center justify-center text-sm font-bold">
                     {step.num}
                   </span>
-                  <div className="w-12 h-12 flex items-center justify-center">{step.icon}</div>
+                  <div className="w-12 h-12 flex items-center justify-center"  style={{color:'#fff'}}>{step.icon}</div>
                 </div>
                 {i < 3 && (
                   <ChevronRight className="hidden md:block absolute top-6 -right-3 w-6 h-6 text-gray-400" />
                 )}
-                <h3 className="font-semibold text-gray-900 mb-2">{step.title}</h3>
-                <p className="text-sm text-gray-600">{step.desc}</p>
+                <h3 className="font-semibold text-gray-900 mb-2" style={{color:'#fff'}}>{step.title}</h3>
+                <p className="text-sm text-gray-600"  style={{color:'#fff'}}>{step.desc}</p>
               </div>
             ))}
           </div>
@@ -230,7 +256,7 @@ export default function ClearViewKitchens() {
       </section>
 
       {/* Testimonials */}
-      <section className="py-16 px-4 md:px-8 lg:px-16 bg-stone-800 text-white">
+      <section className="py-16 px-4 md:px-8 lg:px-16 text-white bg-[#0b1829]" >
         <h2 className="text-2xl md:text-3xl font-bold text-center mb-12">
           Trusted by GTA Homeowners
         </h2>
@@ -271,8 +297,8 @@ export default function ClearViewKitchens() {
       </section>
 
       {/* Final CTA */}
-      <section className="relative py-16 px-4 md:px-8 lg:px-16">
-        <div className="absolute inset-0 bg-stone-900/90" />
+      <section className="relative py-16 px-4 md:px-8 lg:px-16 bg-[#0b1829]" >
+        <div className="absolute inset-0" />
         <div className="relative z-10 text-center text-white">
           <h2 className="text-2xl md:text-3xl font-bold mb-4">Ready to Upgrade Your Kitchen?</h2>
           <p className="mb-8 text-gray-300">
@@ -294,7 +320,7 @@ export default function ClearViewKitchens() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-stone-900 py-6 px-4 md:px-8 lg:px-16">
+      <footer className=" py-6 px-4 md:px-8 lg:px-16  bg-[#0b1829]" >
         <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 text-center text-white text-sm">
           <div className="flex flex-col items-center gap-2">
             <MapPin className="w-6 h-6 text-[rgb(171,127,69)]" />
