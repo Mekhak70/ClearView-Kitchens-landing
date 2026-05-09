@@ -1,14 +1,34 @@
 "use client"
 
-import { Phone, MapPin, Shield, Star, ChevronRight, Lock, Clock, Award, Users } from "lucide-react"
+import { Phone, MapPin, Shield, Star, ChevronRight, Lock, Clock, Award, Users, X } from "lucide-react"
 import Image from "next/image"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import logo from '../public/logo.png'
+import Link from "next/link"
+import Kitchen1 from '../public/kitchen1.jpg'
+import Kitchen2 from '../public/kitchen2.jpg'
+import Kitchen3 from '../public/kitchen3.jpg'
+import Kitchen4 from '../public/kitchen4.jpg'
 
 export default function ClearViewKitchens() {
   const [formData, setFormData] = useState({ name: "", phone: "", email: "" })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error">("idle")
+  
+  // Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [modalEmail, setModalEmail] = useState("")
+  const [isModalSubmitting, setIsModalSubmitting] = useState(false)
+  const [modalSubmitStatus, setModalSubmitStatus] = useState<"idle" | "success" | "error">("idle")
+
+  // Open modal on page entry
+  useEffect(() => {
+    // Small delay to ensure smooth UX
+    const timer = setTimeout(() => {
+      setIsModalOpen(true)
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -35,8 +55,100 @@ export default function ClearViewKitchens() {
     }
   }
 
+  const handleModalSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!modalEmail.trim()) return
+    
+    setIsModalSubmitting(true)
+    setModalSubmitStatus("idle")
+
+    try {
+      const response = await fetch("/api/send-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          email: modalEmail,
+          type: "onsite-consultation"
+        }),
+      })
+
+      if (response.ok) {
+        setModalSubmitStatus("success")
+        setModalEmail("")
+        // Close modal after 2 seconds on success
+        setTimeout(() => {
+          setIsModalOpen(false)
+          setModalSubmitStatus("idle")
+        }, 2000)
+      } else {
+        setModalSubmitStatus("error")
+      }
+    } catch {
+      setModalSubmitStatus("error")
+    } finally {
+      setIsModalSubmitting(false)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-white font-sans bg-[#0b1829]">
+      {/* Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+          <div className="relative w-full max-w-md bg-[#0b1829] border border-[rgb(171,127,69)]/30 shadow-2xl animate-in fade-in zoom-in duration-300">
+            {/* Close button */}
+            <button
+              onClick={() => setIsModalOpen(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            
+            <div className="p-6 md:p-8">
+              <div className="text-center mb-6">
+                <h2 className="text-2xl font-bold text-white mb-2">Free On-Site Consultation</h2>
+                <p className="text-[rgb(191,157,99)] text-sm">Limited spots available this month</p>
+              </div>
+              
+              <form onSubmit={handleModalSubmit} className="space-y-5">
+                <div>
+                  <label className="block text-sm text-gray-300 mb-1">Email Address *</label>
+                  <input
+                    type="email"
+                    placeholder="your@email.com"
+                    className="w-full border border-gray-700 bg-[#0f1f2f] text-white px-4 py-3 focus:outline-none focus:border-[rgb(171,127,69)] rounded-none"
+                    value={modalEmail}
+                    onChange={(e) => setModalEmail(e.target.value)}
+                    required
+                  />
+                </div>
+                
+                {modalSubmitStatus === "error" && (
+                  <p className="text-red-400 text-sm">Something went wrong. Please try again.</p>
+                )}
+                
+                {modalSubmitStatus === "success" && (
+                  <p className="text-green-400 text-sm">Thank you! We'll contact you shortly.</p>
+                )}
+                
+                <button
+                  type="submit"
+                  disabled={isModalSubmitting}
+                  className="w-full bg-[rgb(171,127,69)] hover:bg-[rgb(141,97,39)] text-white py-3 font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isModalSubmitting ? "SENDING..." : "FREE ON-SITE CONSULTATION"}
+                </button>
+                
+                <p className="text-xs text-gray-500 text-center flex items-center justify-center gap-1">
+                  <Lock className="w-3 h-3" />
+                  Your information is 100% secure
+                </p>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <header className="flex items-center justify-between px-4 py-4 md:px-8 lg:px-16 border-b border-gray-100 bg-[#0b1829]">
         <Image
@@ -151,7 +263,7 @@ export default function ClearViewKitchens() {
                 />
                 <button
                   type="submit"
-                  className="w-full bg-[rgb(171,127,69)] hover:bg-[rgb(141,97,39)] text-white py-3 font-semibold transition-colors"
+                  className="w-full bg-[rgb(171,127,69)] hover:bg-[rgb(141,97,39)] text-white py-3 font-semibold transition-colors cusror-pointer"
                 >
                   GET FREE CONSULTATION
                 </button>
@@ -208,19 +320,21 @@ export default function ClearViewKitchens() {
           Recent Custom Kitchen Projects
         </h2>
         <div className="max-w-6xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {[1, 2, 3, 4].map((i) => (
+          {[{src:Kitchen1}, {src:Kitchen2}, {src:Kitchen3}, {src:Kitchen4}].map((value, i) => (
             <div key={i} className="aspect-[4/3] bg-gray-200 relative overflow-hidden group">
               <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-              <div className="w-full h-full bg-gradient-to-br from-gray-300 to-gray-200 flex items-center justify-center text-gray-400">
-                <span className="text-sm">Kitchen {i}</span>
+              <div className="w-full h-full bg-gradient-to-br from-gray-300 to-gray-200 flex items-center justify-center text-gray-400 ">
+                <Image src={value.src} alt={`Kitchen Project ${i + 1}`} className="object-cover w-full h-full" />
               </div>
             </div>
           ))}
         </div>
-        <div className="text-center mt-8">
-          <button className="border-2 border-gray-800 px-8 py-3 font-semibold text-white transition-colors">
+        <div className="text-center mt-8 cusror-pointer">
+          <Link href="https://clearviewkitchens.ca/portfolio/painted-stained-kitchens/" className="inline-flex items-center gap-2 border-2 border-gray-800 px-8 py-3 font-semibold text-white transition-colors hover:bg-gray-800">
+          <button className="border-2 border-gray-800 px-8 py-3 font-semibold text-white transition-colors cusror-pointer">
             VIEW MORE PROJECTS
           </button>
+          </Link>
         </div>
       </section>
 
@@ -312,7 +426,10 @@ export default function ClearViewKitchens() {
               <Phone className="w-5 h-5" />
               CALL 905-767-6766
             </a>
-            <button className="border-2 border-white px-8 py-3 font-semibold hover:bg-white hover:text-gray-900 transition-colors">
+            <button 
+              onClick={() => setIsModalOpen(true)}
+              className="border-2 border-white px-8 py-3 font-semibold hover:bg-white hover:text-gray-900 transition-colors"
+            >
               GET FREE CONSULTATION
             </button>
           </div>
