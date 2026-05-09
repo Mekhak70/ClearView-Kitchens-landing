@@ -265,7 +265,7 @@ export default function ClearViewKitchens() {
                   type="submit"
                   className="w-full bg-[rgb(171,127,69)] hover:bg-[rgb(141,97,39)] text-white py-3 font-semibold transition-colors cusror-pointer"
                 >
-                  GET FREE CONSULTATION
+                  Book My Free Visit
                 </button>
               </form>
               <p className="text-xs text-gray-500 mt-4 flex items-center justify-center gap-1" style={{color:'#fff'}}>
