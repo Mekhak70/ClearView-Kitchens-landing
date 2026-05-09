@@ -57,7 +57,7 @@ export default function ClearViewKitchens() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative" style={{top:'-1px'}}>
+      <section className="relative" style={{top:'-.5px'}}>
         <div className="absolute inset-0 z-0 bg-[#0b1829]" >
           <Image
             src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/eb9a6f24-2332-4f3a-9f3a-1cb05b41ef57-THCTcxozIZvohS56K4yjqj5PH5TN3P.png"
