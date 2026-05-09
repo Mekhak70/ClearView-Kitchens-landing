@@ -23,28 +23,48 @@ export default function ClearViewKitchens() {
 
   // Open modal on page entry
   useEffect(() => {
-    // Small delay to ensure smooth UX
     const timer = setTimeout(() => {
       setIsModalOpen(true)
     }, 500)
     return () => clearTimeout(timer)
   }, [])
 
+  // Submit function for main form
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
     setSubmitStatus("idle")
 
+    if (!formData.name || !formData.phone || !formData.email) {
+      setSubmitStatus("error")
+      setIsSubmitting(false)
+      return
+    }
+
     try {
-      const response = await fetch("/api/contact", {
+      const response = await fetch("https://api.web3forms.com/submit", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify({
+          access_key: "7c9a8b3e-5f1d-4a2e-8b3c-9d4e5f6a7b8c",
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          subject: "New Kitchen Consultation Request",
+          message: `Name: ${formData.name}\nPhone: ${formData.phone}\nEmail: ${formData.email}\nType: Free Consultation Request\nDate: ${new Date().toLocaleString()}`,
+          to_email: "arthuryedigaryan@gmail.com"
+        })
       })
 
-      if (response.ok) {
+      const result = await response.json()
+      
+      if (result.success) {
         setSubmitStatus("success")
         setFormData({ name: "", phone: "", email: "" })
+        setTimeout(() => setSubmitStatus("idle"), 3000)
       } else {
         setSubmitStatus("error")
       }
@@ -70,7 +90,7 @@ export default function ClearViewKitchens() {
           "Accept": "application/json"
         },
         body: JSON.stringify({
-          access_key: "7c9a8b3e-5f1d-4a2e-8b3c-9d4e5f6a7b8c", // Free access key
+          access_key: "7c9a8b3e-5f1d-4a2e-8b3c-9d4e5f6a7b8c",
           email: modalEmail,
           name: "Website Visitor",
           subject: "New On-Site Consultation Request",
@@ -102,9 +122,8 @@ export default function ClearViewKitchens() {
     <div className="min-h-screen bg-white font-sans bg-[#0b1829]">
       {/* Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70">
           <div className="relative w-full max-w-md bg-[#0b1829] border border-[rgb(171,127,69)]/30 shadow-2xl animate-in fade-in zoom-in duration-300">
-            {/* Close button */}
             <button
               onClick={() => setIsModalOpen(false)}
               className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors"
@@ -142,7 +161,7 @@ export default function ClearViewKitchens() {
                 <button
                   type="submit"
                   disabled={isModalSubmitting}
-                  className="w-full bg-[rgb(171,127,69)] hover:bg-[rgb(141,97,39)] text-white py-3 font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full bg-[rgb(171,127,69)] hover:bg-[rgb(141,97,39)] text-white py-3 font-semibold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed animate-button-scale"
                 >
                   {isModalSubmitting ? "SENDING..." : "FREE ON-SITE CONSULTATION"}
                 </button>
@@ -167,8 +186,8 @@ export default function ClearViewKitchens() {
           className="h-14 w-auto"
         />
         <p className="hidden md:block text-sm text-gray-600" style={{color:'#fff'}}>Custom Kitchen Cabinets in Toronto &amp; GTA</p>
-        <a href="tel:905-767-6766" className="flex items-center gap-2 text-[rgb(171,127,69)] font-semibold">
-          <Phone className="w-5 h-5" />
+        <a href="tel:905-767-6766" className="flex items-center gap-2 text-[rgb(171,127,69)] font-semibold group">
+          <Phone className="w-5 h-5 phone-animate" />
           <div className="text-right" style={{color:'#fff'}}>
             <span className="block text-lg">905-767-6766</span>
             <span className="block text-xs text-gray-500 font-normal" style={{color:'#fff'}}>Call for Free Consultation</span>
@@ -233,7 +252,7 @@ export default function ClearViewKitchens() {
               {/* CTA Button */}
               <a
                 href="tel:905-767-6766"
-                className="inline-flex items-center gap-2 bg-[rgb(171,127,69)] hover:bg-[rgb(141,97,39)] text-white px-6 py-3 font-semibold transition-colors"
+                className="inline-flex items-center gap-2 bg-[rgb(171,127,69)] hover:bg-[rgb(141,97,39)] text-white px-6 py-3 font-semibold transition-all duration-300 animate-button-scale"
               >
                 <Phone className="w-5 h-5" />
                 Call Now: 905-767-6766
@@ -241,40 +260,50 @@ export default function ClearViewKitchens() {
             </div>
 
             {/* Right Form */}
-            <div className=" p-6 md:p-8 shadow-xl max-w-md ml-auto bg-[#0b1829]">
+            <div className="p-6 md:p-8 shadow-xl max-w-md ml-auto bg-[#0b1829]">
               <h2 className="text-2xl font-bold text-gray-900 mb-1" style={{color:'#fff'}}>Get Your</h2>
               <p className="text-2xl text-[rgb(171,127,69)] italic mb-2">Free Consultation</p>
               <p className="text-sm text-gray-600 mb-6" style={{color:'#fff'}}>
                 Tell us about your project and we&apos;ll get back to you.
               </p>
-              <form className="space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-4">
                 <input
                   type="text"
                   placeholder="Name"
-                  className="w-full border border-gray-300 px-4 py-3 focus:outline-none focus:border-[rgb(171,127,69)]"
+                  className="w-full border border-gray-300 px-4 py-3 focus:outline-none focus:border-[rgb(171,127,69)] rounded-none bg-white"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  required
                 />
                 <input
                   type="tel"
                   placeholder="Phone"
-                  className="w-full border border-gray-300 px-4 py-3 focus:outline-none focus:border-[rgb(171,127,69)]"
+                  className="w-full border border-gray-300 px-4 py-3 focus:outline-none focus:border-[rgb(171,127,69)] rounded-none bg-white"
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  required
                 />
                 <input
                   type="email"
                   placeholder="Email"
-                  className="w-full border border-gray-300 px-4 py-3 focus:outline-none focus:border-[rgb(171,127,69)]"
+                  className="w-full border border-gray-300 px-4 py-3 focus:outline-none focus:border-[rgb(171,127,69)] rounded-none bg-white"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  required
                 />
                 <button
                   type="submit"
-                  className="w-full bg-[rgb(171,127,69)] hover:bg-[rgb(141,97,39)] text-white py-3 font-semibold transition-colors cusror-pointer"
+                  disabled={isSubmitting}
+                  className="w-full bg-[rgb(171,127,69)] hover:bg-[rgb(141,97,39)] text-white py-3 font-semibold transition-all duration-300 cursor-pointer animate-button-scale"
                 >
-                  Book My Free Visit
+                  {isSubmitting ? "SENDING..." : "Book My Free Visit"}
                 </button>
+                {submitStatus === "success" && (
+                  <p className="text-green-400 text-sm text-center">Thank you! We'll contact you soon.</p>
+                )}
+                {submitStatus === "error" && (
+                  <p className="text-red-400 text-sm text-center">Something went wrong. Please try again.</p>
+                )}
               </form>
               <p className="text-xs text-gray-500 mt-4 flex items-center justify-center gap-1" style={{color:'#fff'}}>
                 <Lock className="w-3 h-3" />
@@ -323,7 +352,7 @@ export default function ClearViewKitchens() {
       </section>
 
       {/* Recent Projects */}
-      <section className="py-12 px-4 md:px-8 lg:px-16  bg-[#0b1829]" >
+      <section className="py-12 px-4 md:px-8 lg:px-16 bg-[#0b1829]" >
         <h2 className="text-2xl md:text-3xl font-bold text-center text-gray-900 mb-8" style={{color:'#fff'}}>
           Recent Custom Kitchen Projects
         </h2>
@@ -337,11 +366,9 @@ export default function ClearViewKitchens() {
             </div>
           ))}
         </div>
-        <div className="text-center mt-8 cusror-pointer">
-          <Link href="https://clearviewkitchens.ca/portfolio/painted-stained-kitchens/" className="inline-flex items-center gap-2 border-2 border-gray-800 px-8 py-3 font-semibold text-white transition-colors hover:bg-gray-800">
-          <button className="border-2 border-gray-800 px-8 py-3 font-semibold text-white transition-colors cusror-pointer">
+        <div className="text-center mt-8">
+          <Link href="https://clearviewkitchens.ca/portfolio/painted-stained-kitchens/" className="inline-flex items-center gap-2 border-2 border-gray-800 px-8 py-3 font-semibold text-white transition-all duration-300 hover:bg-gray-800 animate-button-scale">
             VIEW MORE PROJECTS
-          </button>
           </Link>
         </div>
       </section>
@@ -364,13 +391,13 @@ export default function ClearViewKitchens() {
                   <span className="w-8 h-8 rounded-full bg-[rgb(171,127,69)] text-white flex items-center justify-center text-sm font-bold">
                     {step.num}
                   </span>
-                  <div className="w-12 h-12 flex items-center justify-center"  style={{color:'#fff'}}>{step.icon}</div>
+                  <div className="w-12 h-12 flex items-center justify-center" style={{color:'#fff'}}>{step.icon}</div>
                 </div>
                 {i < 3 && (
                   <ChevronRight className="hidden md:block absolute top-6 -right-3 w-6 h-6 text-gray-400" />
                 )}
                 <h3 className="font-semibold text-gray-900 mb-2" style={{color:'#fff'}}>{step.title}</h3>
-                <p className="text-sm text-gray-600"  style={{color:'#fff'}}>{step.desc}</p>
+                <p className="text-sm text-gray-600" style={{color:'#fff'}}>{step.desc}</p>
               </div>
             ))}
           </div>
@@ -383,15 +410,14 @@ export default function ClearViewKitchens() {
           Trusted by GTA Homeowners
         </h2>
         <div className="max-w-6xl mx-auto grid md:grid-cols-4 gap-8 items-start">
-          {/* Google Rating */}
           <div className="text-center md:text-left">
             <div className="text-3xl font-bold mb-2">
               <span className="text-blue-500">G</span>
               <span className="text-red-500">o</span>
               <span className="text-yellow-500">o</span>
               <span className="text-blue-500">g</span>
-              <span className="text-green-500">l</span>
-              <span className="text-red-500">e</span>
+              <span className="text-red-500">l</span>
+              <span className="text-green-500">e</span>
             </div>
             <div className="flex items-center gap-2 justify-center md:justify-start">
               <span className="text-2xl font-bold">4.8</span>
@@ -403,8 +429,6 @@ export default function ClearViewKitchens() {
             </div>
             <p className="text-sm text-gray-400">100+ Reviews</p>
           </div>
-
-          {/* Reviews */}
           {[
             { text: "ClearView Kitchens exceeded our expectations. The quality is amazing and the team was professional from start to finish.", author: "Sarah T., Vaughan" },
             { text: "We love our new kitchen! The design process was smooth and the installation was flawless.", author: "Mike & Lina, Markham" },
@@ -420,7 +444,6 @@ export default function ClearViewKitchens() {
 
       {/* Final CTA */}
       <section className="relative py-16 px-4 md:px-8 lg:px-16 bg-[#0b1829]" >
-        <div className="absolute inset-0" />
         <div className="relative z-10 text-center text-white">
           <h2 className="text-2xl md:text-3xl font-bold mb-4">Ready to Upgrade Your Kitchen?</h2>
           <p className="mb-8 text-gray-300">
@@ -429,14 +452,14 @@ export default function ClearViewKitchens() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
               href="tel:905-767-6766"
-              className="inline-flex items-center justify-center gap-2 bg-[rgb(171,127,69)] hover:bg-[rgb(141,97,39)] text-white px-8 py-3 font-semibold transition-colors"
+              className="inline-flex items-center justify-center gap-2 bg-[rgb(171,127,69)] hover:bg-[rgb(141,97,39)] text-white px-8 py-3 font-semibold transition-all duration-300 animate-button-scale"
             >
               <Phone className="w-5 h-5" />
               CALL 905-767-6766
             </a>
             <button 
               onClick={() => setIsModalOpen(true)}
-              className="border-2 border-white px-8 py-3 font-semibold hover:bg-white hover:text-gray-900 transition-colors"
+              className="border-2 border-white px-8 py-3 font-semibold hover:bg-white hover:text-gray-900 transition-all duration-300 animate-button-scale"
             >
               GET FREE CONSULTATION
             </button>
@@ -445,7 +468,7 @@ export default function ClearViewKitchens() {
       </section>
 
       {/* Footer */}
-      <footer className=" py-6 px-4 md:px-8 lg:px-16  bg-[#0b1829]" >
+      <footer className="py-6 px-4 md:px-8 lg:px-16 bg-[#0b1829]" >
         <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 text-center text-white text-sm">
           <div className="flex flex-col items-center gap-2">
             <MapPin className="w-6 h-6 text-[rgb(171,127,69)]" />
@@ -465,11 +488,49 @@ export default function ClearViewKitchens() {
           </div>
         </div>
       </footer>
+
+      <style jsx global>{`
+        @keyframes gentleScale {
+          0%, 100% {
+            transform: scale(1);
+          }
+          50% {
+            transform: scale(1.08);
+          }
+        }
+        @keyframes phoneScale {
+          0%, 100% {
+            transform: scale(1);
+          }
+          50% {
+            transform: scale(1.2);
+          }
+        }
+        .animate-button-scale {
+          animation: gentleScale 1.2s infinite ease-in-out;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.5rem;
+        }
+        .phone-animate {
+          animation: phoneScale 1.2s infinite ease-in-out;
+        }
+        button, a, .cursor-pointer {
+          cursor: pointer;
+        }
+        button:not(.no-animate), a.animate-button-scale, .animate-button-scale {
+          animation: gentleScale 1.2s infinite ease-in-out;
+        }
+        .phone-animate {
+          animation: phoneScale 1.2s infinite ease-in-out;
+        }
+      `}</style>
     </div>
   )
 }
 
-// Custom Icons
+// Custom Icons (same as before)
 function CabinetIcon() {
   return (
     <svg className="w-10 h-10 text-[rgb(171,127,69)]" viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -506,7 +567,7 @@ function CheckShieldIcon() {
 
 function ChatIcon() {
   return (
-    <svg className="w-10 h-10 text-gray-700" viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.5">
+    <svg className="w-10 h-10 text-gray-700" style={{color:'#fff'}} viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.5">
       <rect x="6" y="8" width="36" height="26" rx="4" />
       <path d="M14 36L6 34V30" />
       <circle cx="16" cy="21" r="2" fill="currentColor" />
@@ -518,7 +579,7 @@ function ChatIcon() {
 
 function DesignIcon() {
   return (
-    <svg className="w-10 h-10 text-gray-700" viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.5">
+    <svg className="w-10 h-10 text-gray-700" style={{color:'#fff'}} viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.5">
       <rect x="8" y="8" width="32" height="32" rx="2" />
       <rect x="12" y="12" width="24" height="16" rx="1" />
       <line x1="16" y1="34" x2="32" y2="34" />
@@ -528,7 +589,7 @@ function DesignIcon() {
 
 function GearIcon() {
   return (
-    <svg className="w-10 h-10 text-gray-700" viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.5">
+    <svg className="w-10 h-10 text-gray-700" style={{color:'#fff'}} viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.5">
       <circle cx="24" cy="24" r="8" />
       <path d="M24 8V4M24 44V40M40 24H44M4 24H8M36 12L39 9M9 39L12 36M36 36L39 39M9 9L12 12" />
     </svg>
@@ -537,7 +598,7 @@ function GearIcon() {
 
 function InstallIcon() {
   return (
-    <svg className="w-10 h-10 text-gray-700" viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.5">
+    <svg className="w-10 h-10 text-gray-700" style={{color:'#fff'}} viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.5">
       <rect x="10" y="20" width="28" height="20" rx="2" />
       <path d="M16 20V14C16 10 19 8 24 8C29 8 32 10 32 14V20" />
       <path d="M24 28V34" />
