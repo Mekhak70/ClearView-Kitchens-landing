@@ -29,81 +29,93 @@ export default function ClearViewKitchens() {
     return () => clearTimeout(timer)
   }, [])
 
+  // Submit function for main form - using proxy route
   // Submit function for main form
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
     setSubmitStatus("idle")
-
+  
     if (!formData.name || !formData.phone || !formData.email) {
       setSubmitStatus("error")
       setIsSubmitting(false)
       return
     }
-
+  
     try {
-      const response = await fetch("https://api.web3forms.com/submit", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json"
-        },
-        body: JSON.stringify({
-          access_key: "7c9a8b3e-5f1d-4a2e-8b3c-9d4e5f6a7b8c",
-          name: formData.name,
-          email: formData.email,
-          phone: formData.phone,
-          subject: "New Kitchen Consultation Request",
-          message: `Name: ${formData.name}\nPhone: ${formData.phone}\nEmail: ${formData.email}\nType: Free Consultation Request\nDate: ${new Date().toLocaleString()}`,
-          to_email: "arthuryedigaryan@gmail.com"
-        })
-      })
-
-      const result = await response.json()
-      
-      if (result.success) {
+      const formDataToSend = new FormData()
+  
+      formDataToSend.append("name", formData.name)
+      formDataToSend.append("phone", formData.phone)
+      formDataToSend.append("email", formData.email)
+      formDataToSend.append("subject", "New Kitchen Consultation Request")
+  
+      formDataToSend.append(
+        "message",
+        `Name: ${formData.name}
+  Phone: ${formData.phone}
+  Email: ${formData.email}
+  Type: Free Consultation Request
+  Date: ${new Date().toLocaleString()}`
+      )
+  
+      const response = await fetch(
+        "https://formsubmit.co/arthuryedigaryan@gmail.com",
+        {
+          method: "POST",
+          body: formDataToSend,
+        }
+      )
+  
+      if (response.ok) {
         setSubmitStatus("success")
         setFormData({ name: "", phone: "", email: "" })
+  
         setTimeout(() => setSubmitStatus("idle"), 3000)
       } else {
         setSubmitStatus("error")
       }
-    } catch {
+    } catch (error) {
+      console.error("Submit error:", error)
       setSubmitStatus("error")
     } finally {
       setIsSubmitting(false)
     }
   }
 
+// Removed duplicate handleModalSubmit function
+  // Modal submit - using proxy route
   const handleModalSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+  
     if (!modalEmail.trim()) return
-    
+  
     setIsModalSubmitting(true)
     setModalSubmitStatus("idle")
   
     try {
-      const response = await fetch("https://api.web3forms.com/submit", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json"
-        },
-        body: JSON.stringify({
-          access_key: "7c9a8b3e-5f1d-4a2e-8b3c-9d4e5f6a7b8c",
-          email: modalEmail,
-          name: "Website Visitor",
-          subject: "New On-Site Consultation Request",
-          message: `Email: ${modalEmail}\nType: On-site Consultation\nDate: ${new Date().toLocaleString()}`,
-          to_email: "arthuryedigaryan@gmail.com"
-        })
-      })
+      const formData = new FormData()
+      formData.append("email", modalEmail)
+      formData.append("subject", "New On-Site Consultation Request")
+      formData.append(
+        "message",
+        `Email: ${modalEmail}
+  Type: On-site Consultation
+  Date: ${new Date().toLocaleString()}`
+      )
   
-      const result = await response.json()
-      
-      if (result.success) {
+      const response = await fetch(
+        "https://formsubmit.co/arthuryedigaryan@gmail.com",
+        {
+          method: "POST",
+          body: formData,
+        }
+      )
+  
+      if (response.ok) {
         setModalSubmitStatus("success")
         setModalEmail("")
+  
         setTimeout(() => {
           setIsModalOpen(false)
           setModalSubmitStatus("idle")
@@ -111,7 +123,8 @@ export default function ClearViewKitchens() {
       } else {
         setModalSubmitStatus("error")
       }
-    } catch {
+    } catch (error) {
+      console.error(error)
       setModalSubmitStatus("error")
     } finally {
       setIsModalSubmitting(false)
@@ -178,6 +191,7 @@ export default function ClearViewKitchens() {
 
       {/* Header */}
       <header className="flex items-center justify-between px-4 py-4 md:px-8 lg:px-16 border-b border-gray-100 bg-[#0b1829]">
+        <Link href="https://clearviewkitchens.ca/" className="flex items-center gap-4">
         <Image
           src={logo}
           alt="ClearView Kitchens & Homes"
@@ -185,6 +199,7 @@ export default function ClearViewKitchens() {
           height={60}
           className="h-14 w-auto"
         />
+        </Link>
         <p className="hidden md:block text-sm text-gray-600" style={{color:'#fff'}}>Custom Kitchen Cabinets in Toronto &amp; GTA</p>
         <a href="tel:905-767-6766" className="flex items-center gap-2 text-[rgb(171,127,69)] font-semibold group">
           <Phone className="w-5 h-5 phone-animate" />
@@ -530,7 +545,7 @@ export default function ClearViewKitchens() {
   )
 }
 
-// Custom Icons (same as before)
+// Custom Icons
 function CabinetIcon() {
   return (
     <svg className="w-10 h-10 text-[rgb(171,127,69)]" viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.5">
