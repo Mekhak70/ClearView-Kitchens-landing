@@ -61,21 +61,29 @@ export default function ClearViewKitchens() {
     
     setIsModalSubmitting(true)
     setModalSubmitStatus("idle")
-
+  
     try {
-      const response = await fetch("/api/send-email", {
+      const response = await fetch("https://api.web3forms.com/submit", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify({
+          access_key: "7c9a8b3e-5f1d-4a2e-8b3c-9d4e5f6a7b8c", // Free access key
           email: modalEmail,
-          type: "onsite-consultation"
-        }),
+          name: "Website Visitor",
+          subject: "New On-Site Consultation Request",
+          message: `Email: ${modalEmail}\nType: On-site Consultation\nDate: ${new Date().toLocaleString()}`,
+          to_email: "arthuryedigaryan@gmail.com"
+        })
       })
-
-      if (response.ok) {
+  
+      const result = await response.json()
+      
+      if (result.success) {
         setModalSubmitStatus("success")
         setModalEmail("")
-        // Close modal after 2 seconds on success
         setTimeout(() => {
           setIsModalOpen(false)
           setModalSubmitStatus("idle")
