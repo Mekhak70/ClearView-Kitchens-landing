@@ -135,7 +135,7 @@ export default function ClearViewKitchens() {
     <div className="min-h-screen bg-white font-sans bg-[#0b1829]">
       {/* Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30">
           <div className="relative w-full max-w-md bg-[#0b1829] border border-[rgb(171,127,69)]/30 shadow-2xl animate-in fade-in zoom-in duration-300">
             <button
               onClick={() => setIsModalOpen(false)}
